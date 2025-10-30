@@ -72,14 +72,20 @@ if st.button("Compare Resume to JD") and jd_text and resume_text:
     st.markdown("## :mag: Entity Comparison Table")
     import pandas as pd
     entity_labels = {"skills": "Skills", "education": "Education", "experience": "Experience"}
+    user_lagging_points = []
     for key in ["skills", "education", "experience"]:
         jd_set = set(jd_entities[key])
         resume_set = set(resume_entities[key])
         missing = jd_set - resume_set
-        # Sort each column alphabetically, ignoring dashes
-        jd_list = sorted([item for item in jd_set if item != "-"]) + ["-"] * (max(len(jd_set), len(resume_set), len(missing)) - len(jd_set))
-        resume_list = sorted([item for item in resume_set if item != "-"]) + ["-"] * (max(len(jd_set), len(resume_set), len(missing)) - len(resume_set))
-        missing_list = sorted([item for item in missing if item != "-"]) + ["-"] * (max(len(jd_set), len(resume_set), len(missing)) - len(missing))
+        max_len = max(len(jd_set), len(resume_set), len(missing))
+        # Sort each column alphabetically, '-' at the bottom
+        def sort_with_dash(lst):
+            items = sorted([x for x in lst if x != "-"])
+            dashes = [x for x in lst if x == "-"]
+            return items + dashes
+        jd_list = sort_with_dash(list(jd_set)) + ["-"] * (max_len - len(jd_set))
+        resume_list = sort_with_dash(list(resume_set)) + ["-"] * (max_len - len(resume_set))
+        missing_list = sort_with_dash(list(missing)) + ["-"] * (max_len - len(missing))
         df = pd.DataFrame({
             f"{entity_labels[key]} in JD": jd_list,
             f"{entity_labels[key]} in Resume": resume_list,
@@ -87,3 +93,15 @@ if st.button("Compare Resume to JD") and jd_text and resume_text:
         })
         st.markdown(f"### {entity_labels[key]}")
         st.table(df)
+        # Collect lagging points for user
+        if missing:
+            user_lagging_points.append(f"Missing {entity_labels[key].lower()} in resume: {', '.join(sorted(missing))}")
+    # Show user lagging bullet points
+    if user_lagging_points:
+        st.markdown("---")
+        st.markdown("### :warning: Suggestions to Improve Resume")
+        for point in user_lagging_points:
+            st.markdown(f"- {point}")
+    else:
+        st.markdown("---")
+        st.success("Your resume covers all key requirements from the JD!")
