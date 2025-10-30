@@ -1,13 +1,9 @@
 import spacy
 from typing import List, Dict
 
-# Load spaCy model (en_core_web_sm or similar)
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    import spacy.cli
-    spacy.cli.download("en_core_web_sm")
-    nlp = spacy.load("en_core_web_sm")
+# Load spaCy model (en_core_web_sm should be installed via requirements.txt)
+# Do not attempt to download models at runtime (this slows deployment and may fail in cloud)
+nlp = spacy.load("en_core_web_sm")
 
 # Example skill/education/experience patterns (expand as needed)
 SKILL_KEYWORDS = ["python", "java", "sql", "machine learning", "nlp", "deep learning", "react", "aws", "docker", "kubernetes"]
