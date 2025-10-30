@@ -1,6 +1,3 @@
-
-
-
 import streamlit as st
 import numpy as np
 from sentence_transformers import SentenceTransformer
@@ -53,61 +50,40 @@ if st.button("Compare Resume to JD") and jd_text and resume_text:
     sim = 1 - np.dot(jd_emb, resume_emb.T) / (np.linalg.norm(jd_emb) * np.linalg.norm(resume_emb))
     similarity = 1 - sim[0][0]
 
-    # --- Creative Results UI ---
+    # --- Clear Table Results UI ---
     st.markdown("---")
     st.markdown("## :sparkles: Results Overview")
-    # Similarity Score
-
-    st.markdown(
-        f"<h4 style='margin-bottom:0;'>Similarity Score</h4>", unsafe_allow_html=True
-    )
     similarity_clamped = min(max(similarity, 0.0), 1.0)
+    st.markdown(f"<h4 style='margin-bottom:0;'>Similarity Score</h4>", unsafe_allow_html=True)
     st.progress(similarity_clamped)
+    st.markdown(f"<div style='font-size:1.2em;'><b>Similarity:</b> {similarity:.2f}</div>", unsafe_allow_html=True)
     if similarity > 0.8:
-        st.success(f"Excellent match! ({similarity:.2f})")
+        st.success("Excellent match!")
     elif similarity > 0.6:
-        st.info(f"Good match. ({similarity:.2f})")
+        st.info("Good match.")
     else:
-        st.warning(f"Low match. ({similarity:.2f})")
+        st.warning("Low match.")
 
     # Entity extraction
     jd_entities = extract_entities(jd_text)
     resume_entities = extract_entities(resume_text)
 
     st.markdown("---")
-    st.markdown("## :mag: Entity Comparison")
-    col1, col2, col3 = st.columns(3)
-    entity_labels = {"skills": "🛠️ Skills", "education": "🎓 Education", "experience": "💼 Experience"}
+    st.markdown("## :mag: Entity Comparison Table")
+    import pandas as pd
+    entity_labels = {"skills": "Skills", "education": "Education", "experience": "Experience"}
     for key in ["skills", "education", "experience"]:
-        with col1 if key == "skills" else col2 if key == "education" else col3:
-            st.markdown(f"<b>{entity_labels[key]} in JD</b>", unsafe_allow_html=True)
-            if jd_entities[key]:
-                st.markdown(
-                    " ".join([
-                        f"<span style='background-color:#e0e0e0;border-radius:8px;padding:4px 8px;margin:2px;display:inline-block;'>{item}</span>"
-                        for item in jd_entities[key]
-                    ]), unsafe_allow_html=True
-                )
-            else:
-                st.write("None")
-            st.markdown(f"<b>{entity_labels[key]} in Resume</b>", unsafe_allow_html=True)
-            if resume_entities[key]:
-                st.markdown(
-                    " ".join([
-                        f"<span style='background-color:#d1ffd6;border-radius:8px;padding:4px 8px;margin:2px;display:inline-block;'>{item}</span>"
-                        for item in resume_entities[key]
-                    ]), unsafe_allow_html=True
-                )
-            else:
-                st.write("None")
-            missing = set(jd_entities[key]) - set(resume_entities[key])
-            st.markdown(f"<b>Missing from Resume</b>", unsafe_allow_html=True)
-            if missing:
-                st.markdown(
-                    " ".join([
-                        f"<span style='background-color:#ffd6d6;border-radius:8px;padding:4px 8px;margin:2px;display:inline-block;'>{item}</span>"
-                        for item in missing
-                    ]), unsafe_allow_html=True
-                )
-            else:
-                st.success("None! All covered.")
+        jd_set = set(jd_entities[key])
+        resume_set = set(resume_entities[key])
+        missing = jd_set - resume_set
+        max_len = max(len(jd_set), len(resume_set), len(missing))
+        jd_list = list(jd_set) + ["-"] * (max_len - len(jd_set))
+        resume_list = list(resume_set) + ["-"] * (max_len - len(resume_set))
+        missing_list = list(missing) + ["-"] * (max_len - len(missing))
+        df = pd.DataFrame({
+            f"{entity_labels[key]} in JD": jd_list,
+            f"{entity_labels[key]} in Resume": resume_list,
+            "Missing from Resume": missing_list
+        })
+        st.markdown(f"### {entity_labels[key]}")
+        st.table(df)
