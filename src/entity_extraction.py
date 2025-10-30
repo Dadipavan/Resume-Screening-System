@@ -45,5 +45,5 @@ def extract_entities(text: str) -> Dict[str, List[str]]:
     }
 
 if __name__ == "__main__":
-    sample = """Sai Pavanhas 5 years of experience in Python, machine learning, and AWS. He graduated from Stanford University with a Master's degree."""
+    sample = """Sai Pavan has 5 years of experience in Python, machine learning, and AWS. He graduated from Stanford University with a Master's degree."""
     print(extract_entities(sample))
