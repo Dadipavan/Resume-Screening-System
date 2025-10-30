@@ -57,10 +57,12 @@ if st.button("Compare Resume to JD") and jd_text and resume_text:
     st.markdown("---")
     st.markdown("## :sparkles: Results Overview")
     # Similarity Score
+
     st.markdown(
         f"<h4 style='margin-bottom:0;'>Similarity Score</h4>", unsafe_allow_html=True
     )
-    st.progress(similarity)
+    similarity_clamped = min(max(similarity, 0.0), 1.0)
+    st.progress(similarity_clamped)
     if similarity > 0.8:
         st.success(f"Excellent match! ({similarity:.2f})")
     elif similarity > 0.6:
