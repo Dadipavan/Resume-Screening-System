@@ -76,10 +76,10 @@ if st.button("Compare Resume to JD") and jd_text and resume_text:
         jd_set = set(jd_entities[key])
         resume_set = set(resume_entities[key])
         missing = jd_set - resume_set
-        max_len = max(len(jd_set), len(resume_set), len(missing))
-        jd_list = list(jd_set) + ["-"] * (max_len - len(jd_set))
-        resume_list = list(resume_set) + ["-"] * (max_len - len(resume_set))
-        missing_list = list(missing) + ["-"] * (max_len - len(missing))
+        # Sort each column alphabetically, ignoring dashes
+        jd_list = sorted([item for item in jd_set if item != "-"]) + ["-"] * (max(len(jd_set), len(resume_set), len(missing)) - len(jd_set))
+        resume_list = sorted([item for item in resume_set if item != "-"]) + ["-"] * (max(len(jd_set), len(resume_set), len(missing)) - len(resume_set))
+        missing_list = sorted([item for item in missing if item != "-"]) + ["-"] * (max(len(jd_set), len(resume_set), len(missing)) - len(missing))
         df = pd.DataFrame({
             f"{entity_labels[key]} in JD": jd_list,
             f"{entity_labels[key]} in Resume": resume_list,
