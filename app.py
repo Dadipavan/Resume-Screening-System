@@ -52,14 +52,60 @@ if st.button("Compare Resume to JD") and jd_text and resume_text:
     resume_emb = model.encode([resume_text], convert_to_numpy=True)
     sim = 1 - np.dot(jd_emb, resume_emb.T) / (np.linalg.norm(jd_emb) * np.linalg.norm(resume_emb))
     similarity = 1 - sim[0][0]
-    st.subheader(f"Similarity Score: {similarity:.2f}")
+
+    # --- Creative Results UI ---
+    st.markdown("---")
+    st.markdown("## :sparkles: Results Overview")
+    # Similarity Score
+    st.markdown(
+        f"<h4 style='margin-bottom:0;'>Similarity Score</h4>", unsafe_allow_html=True
+    )
+    st.progress(similarity)
+    if similarity > 0.8:
+        st.success(f"Excellent match! ({similarity:.2f})")
+    elif similarity > 0.6:
+        st.info(f"Good match. ({similarity:.2f})")
+    else:
+        st.warning(f"Low match. ({similarity:.2f})")
 
     # Entity extraction
     jd_entities = extract_entities(jd_text)
     resume_entities = extract_entities(resume_text)
-    st.write("## Entity Comparison")
+
+    st.markdown("---")
+    st.markdown("## :mag: Entity Comparison")
+    col1, col2, col3 = st.columns(3)
+    entity_labels = {"skills": "🛠️ Skills", "education": "🎓 Education", "experience": "💼 Experience"}
     for key in ["skills", "education", "experience"]:
-        st.write(f"**{key.capitalize()} in JD:** {', '.join(jd_entities[key]) if jd_entities[key] else 'None'}")
-        st.write(f"**{key.capitalize()} in Resume:** {', '.join(resume_entities[key]) if resume_entities[key] else 'None'}")
-        missing = set(jd_entities[key]) - set(resume_entities[key])
-        st.write(f"**Missing from Resume:** {', '.join(missing) if missing else 'None!'}")
+        with col1 if key == "skills" else col2 if key == "education" else col3:
+            st.markdown(f"<b>{entity_labels[key]} in JD</b>", unsafe_allow_html=True)
+            if jd_entities[key]:
+                st.markdown(
+                    " ".join([
+                        f"<span style='background-color:#e0e0e0;border-radius:8px;padding:4px 8px;margin:2px;display:inline-block;'>{item}</span>"
+                        for item in jd_entities[key]
+                    ]), unsafe_allow_html=True
+                )
+            else:
+                st.write("None")
+            st.markdown(f"<b>{entity_labels[key]} in Resume</b>", unsafe_allow_html=True)
+            if resume_entities[key]:
+                st.markdown(
+                    " ".join([
+                        f"<span style='background-color:#d1ffd6;border-radius:8px;padding:4px 8px;margin:2px;display:inline-block;'>{item}</span>"
+                        for item in resume_entities[key]
+                    ]), unsafe_allow_html=True
+                )
+            else:
+                st.write("None")
+            missing = set(jd_entities[key]) - set(resume_entities[key])
+            st.markdown(f"<b>Missing from Resume</b>", unsafe_allow_html=True)
+            if missing:
+                st.markdown(
+                    " ".join([
+                        f"<span style='background-color:#ffd6d6;border-radius:8px;padding:4px 8px;margin:2px;display:inline-block;'>{item}</span>"
+                        for item in missing
+                    ]), unsafe_allow_html=True
+                )
+            else:
+                st.success("None! All covered.")
