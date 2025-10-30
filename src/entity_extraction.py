@@ -19,15 +19,19 @@ def extract_entities(text: str) -> Dict[str, List[str]]:
     skills = set()
     education = set()
     experience = set()
-    # Simple keyword matching (expand for production)
-    for token in doc:
-        t = token.text.lower()
-        if t in SKILL_KEYWORDS:
-            skills.add(t)
-        if t in EDU_KEYWORDS:
-            education.add(t)
-        if t in EXP_KEYWORDS:
-            experience.add(t)
+    # Normalize tokens for better matching
+    tokens = [t.text.lower().strip() for t in doc]
+    # Multi-word skill matching
+    text_lower = text.lower()
+    for skill in SKILL_KEYWORDS:
+        if skill in text_lower:
+            skills.add(skill)
+    for edu in EDU_KEYWORDS:
+        if edu in text_lower:
+            education.add(edu)
+    for exp in EXP_KEYWORDS:
+        if exp in text_lower:
+            experience.add(exp)
     # Named entity recognition for organizations, dates, etc.
     for ent in doc.ents:
         if ent.label_ == "ORG":
@@ -35,11 +39,11 @@ def extract_entities(text: str) -> Dict[str, List[str]]:
         if ent.label_ == "DATE":
             experience.add(ent.text)
     return {
-        "skills": list(skills),
-        "education": list(education),
-        "experience": list(experience)
+        "skills": sorted(skills),
+        "education": sorted(education),
+        "experience": sorted(experience)
     }
 
 if __name__ == "__main__":
-    sample = """Sai Pavan has 5 years of experience in Python, machine learning, and AWS. He graduated from Stanford University with a Master's degree."""
+    sample = """Sai Pavanhas 5 years of experience in Python, machine learning, and AWS. He graduated from Stanford University with a Master's degree."""
     print(extract_entities(sample))

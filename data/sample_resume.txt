@@ -1,5 +1,5 @@
 # Sample Resume
-John Doe
+Sai Pavan
 
 Education:
 Master's in Computer Science, Stanford University

@@ -1,21 +1,27 @@
 
 
+
 import streamlit as st
 import numpy as np
 from sentence_transformers import SentenceTransformer
-import io
 from src.entity_extraction import extract_entities
 
-st.title("Intelligent Resume Screening System (Upload & Compare)")
 
+st.title("Intelligent Resume Screening System (Upload & Compare)")
 st.write("Upload a Job Description and a Resume (PDF or text). Get similarity score, missing skills/requirements, and entity comparison.")
+
+# Load SBERT model once for speed
+@st.cache_resource(show_spinner=False)
+def load_model():
+    return SentenceTransformer('all-MiniLM-L6-v2')
+model = load_model()
 
 def extract_text_from_pdf(file):
     try:
         from pdfminer.high_level import extract_text
         text = extract_text(file)
         return text
-    except Exception as e:
+    except Exception:
         return ""
 
 # Uploaders
@@ -42,7 +48,6 @@ if resume_file is not None:
     st.write(resume_text[:1000] + ("..." if len(resume_text) > 1000 else ""))
 
 if st.button("Compare Resume to JD") and jd_text and resume_text:
-    model = SentenceTransformer('all-MiniLM-L6-v2')
     jd_emb = model.encode([jd_text], convert_to_numpy=True)
     resume_emb = model.encode([resume_text], convert_to_numpy=True)
     sim = 1 - np.dot(jd_emb, resume_emb.T) / (np.linalg.norm(jd_emb) * np.linalg.norm(resume_emb))
