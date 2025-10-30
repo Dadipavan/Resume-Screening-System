@@ -1,0 +1,11 @@
+# Sample Resume
+John Doe
+
+Education:
+Master's in Computer Science, Stanford University
+
+Experience:
+4 years as Data Analyst at TechCorp
+
+Skills:
+Python, SQL, AWS, Data Visualization

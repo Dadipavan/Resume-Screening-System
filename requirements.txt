@@ -1,0 +1,11 @@
+streamlit
+sentence-transformers
+pdfminer.six
+spacy
+hnswlib
+pandas
+numpy
+pyngrok
+scikit-learn
+tqdm
+requests

@@ -1,0 +1,2 @@
+# Sample Job Description
+We are seeking a Data Scientist with experience in Python, machine learning, and cloud platforms. The ideal candidate has a Master's degree in Computer Science or related field, 3+ years of experience, and strong skills in SQL, NLP, and AWS.
