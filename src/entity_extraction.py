@@ -4,9 +4,9 @@ from typing import List, Dict
 # Load spaCy model (en_core_web_sm or similar)
 try:
     nlp = spacy.load("en_core_web_sm")
-except:
-    import os
-    os.system("python -m spacy download en_core_web_sm")
+except OSError:
+    import spacy.cli
+    spacy.cli.download("en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")
 
 # Example skill/education/experience patterns (expand as needed)
@@ -41,5 +41,5 @@ def extract_entities(text: str) -> Dict[str, List[str]]:
     }
 
 if __name__ == "__main__":
-    sample = """John Doe has 5 years of experience in Python, machine learning, and AWS. He graduated from Stanford University with a Master's degree."""
+    sample = """Sai Pavan has 5 years of experience in Python, machine learning, and AWS. He graduated from Stanford University with a Master's degree."""
     print(extract_entities(sample))
